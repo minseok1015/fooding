@@ -13,7 +13,7 @@ public class ItemRequest {
     private LocalDate expirationDate;
     private String itemLocation;
     private String itemStatus;
-    private Integer quantity;
+    private String quantity;
     private Long categoryId;
     private String thumbnailUrl;
 }

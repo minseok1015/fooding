@@ -28,7 +28,7 @@ public class MyPageResponse {
     public static class ItemInfo {
         private Long itemId;
         private String itemName;
-        private Integer quantity;
+        private String quantity;
         private LocalDate expirationDate;
         private String itemDescription;
     }

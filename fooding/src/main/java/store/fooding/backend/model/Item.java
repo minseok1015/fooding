@@ -21,7 +21,7 @@ public class Item {
     private String thumbnailUrl;
     private String itemLocation;
     private String itemStatus;
-    private Integer quantity;
+    private String quantity;
 
     private String actorType; // "user" or "restaurant"
     private Long actorId;     // user_id or restaurant_id

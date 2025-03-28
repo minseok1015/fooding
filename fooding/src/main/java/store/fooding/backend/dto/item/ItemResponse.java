@@ -15,7 +15,7 @@ public class ItemResponse {
     private String itemDescription;
     private LocalDate expirationDate;
     private String itemLocation;
-    private Integer quantity;
+    private String quantity;
     private String itemStatus;
     private String categoryName;
     private String registeredBy;

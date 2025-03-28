@@ -33,6 +33,7 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setUserPassword(request.getUserPassword());
         user.setLocation(request.getLocation());
+        user.setPhoneNumber(request.getPhoneNumber());
         user.setCreateAt(LocalDateTime.now());
 
         User saved = userRepository.save(user);
@@ -43,7 +44,9 @@ public class UserService {
                 saved.getEmail(),
                 saved.getLocation(),
                 saved.getPhoneNumber()
-        );    }
+        );
+    }
+
 
     public UserResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
