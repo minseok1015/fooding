@@ -2,6 +2,7 @@ package store.fooding.backend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import store.fooding.backend.common.response.SuccessResponse;
 import store.fooding.backend.dto.item.ItemRequest;
 import store.fooding.backend.dto.item.ItemResponse;
@@ -25,10 +26,12 @@ public class ItemController {
     @PostMapping("/register")
     public ItemResponse registerItem(
             @RequestParam Long userId,
-            @RequestBody ItemRequest request
+            @RequestPart ItemRequest request,
+            @RequestPart(required = false) MultipartFile thumbnailImage
     ) {
-        return itemService.registerItem(userId, request);
+        return itemService.registerItem(userId, request, thumbnailImage);
     }
+
 
     @GetMapping("/my")
     public List<ItemResponse> getMyItems(@RequestParam Long userId) {

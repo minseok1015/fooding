@@ -5,15 +5,14 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
+@Getter @Setter
 public class ItemRequest {
     private String itemName;
     private String itemDescription;
-    private LocalDate expirationDate;
+    private String expirationDate;
     private String itemLocation;
-    private String itemStatus;
     private String quantity;
+    private String itemStatus;
     private Long categoryId;
-    private String thumbnailUrl;
 }
+

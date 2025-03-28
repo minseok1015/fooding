@@ -2,6 +2,7 @@ package store.fooding.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import store.fooding.backend.common.exception.BadRequestException;
 import store.fooding.backend.common.response.status.BaseExceptionResponseStatus;
 import store.fooding.backend.dto.item.ItemRequest;
@@ -16,6 +17,8 @@ import store.fooding.backend.repository.ItemRepository;
 import store.fooding.backend.repository.RestaurantRepository;
 import store.fooding.backend.repository.UserRepository;
 
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -72,30 +75,34 @@ public class ItemService {
     /**
      * 상품 등록
      */
-    public ItemResponse registerItem(Long userId, ItemRequest request) {
+    public ItemResponse registerItem(Long userId, ItemRequest request, MultipartFile thumbnailImage) {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new BadRequestException(BaseExceptionResponseStatus.BAD_REQUEST));
 
         Item item = new Item();
         item.setItemName(request.getItemName());
         item.setItemDescription(request.getItemDescription());
-        item.setExpirationDate(request.getExpirationDate());
+        item.setExpirationDate(LocalDate.parse(request.getExpirationDate()));
         item.setItemLocation(request.getItemLocation());
         item.setQuantity(request.getQuantity());
         item.setItemStatus(request.getItemStatus());
         item.setActorType("user");
         item.setActorId(userId);
         item.setCategory(category);
-        item.setThumbnailUrl(request.getThumbnailUrl());
+
+        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
+            try {
+                item.setThumbnailImage(thumbnailImage.getBytes());
+            } catch (IOException e) {
+                throw new BadRequestException(BaseExceptionResponseStatus.BAD_REQUEST);
+            }
+        }
 
         Item saved = itemRepository.save(item);
 
-        // 등록한 사람 정보 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException(USER_NOT_FOUND));
-
-        return ItemResponse.from(saved, user.getUserName(), user.getPhoneNumber());
+        return ItemResponse.from(saved, null, null);
     }
+
 
     /**
      * 상품 삭제
