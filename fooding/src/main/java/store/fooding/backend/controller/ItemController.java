@@ -6,7 +6,6 @@ import store.fooding.backend.common.response.SuccessResponse;
 import store.fooding.backend.dto.item.ItemRequest;
 import store.fooding.backend.dto.item.ItemResponse;
 import store.fooding.backend.dto.item.ItemUpdateRequest;
-import store.fooding.backend.model.Item;
 import store.fooding.backend.service.ItemService;
 
 import java.util.List;
@@ -19,13 +18,8 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<Item> getItems() {
+    public List<ItemResponse> getAllItems() {
         return itemService.getAllItems();
-    }
-
-    @PostMapping
-    public Item createItem(@RequestBody Item item) {
-        return itemService.createItem(item);
     }
 
     @PostMapping("/register")
@@ -47,13 +41,17 @@ public class ItemController {
         return new SuccessResponse("삭제 완료");
     }
 
-
     @PutMapping("/{itemId}")
     public ItemResponse updateItem(
             @PathVariable Long itemId,
             @RequestBody ItemUpdateRequest request
     ) {
         return itemService.updateItem(itemId, request);
+    }
+
+    @GetMapping("/search")
+    public List<ItemResponse> searchItems(@RequestParam String keyword) {
+        return itemService.searchItems(keyword);
     }
 
 }

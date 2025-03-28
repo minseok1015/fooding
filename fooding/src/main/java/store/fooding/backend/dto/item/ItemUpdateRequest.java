@@ -11,5 +11,6 @@ public class ItemUpdateRequest {
     private String itemDescription;
     private LocalDate expirationDate;
     private String itemLocation;
-    private String quantity;
+    private Integer quantity;
+    private String itemStatus;
 }

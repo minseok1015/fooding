@@ -20,18 +20,13 @@ public class Item {
     private LocalDate expirationDate;
     private String thumbnailUrl;
     private String itemLocation;
-    private String itemStatus; // SHARING, EXCHANGE 상태 관리
-    private String quantity;
+    private String itemStatus;
+    private Integer quantity;
+
+    private String actorType; // "user" or "restaurant"
+    private Long actorId;     // user_id or restaurant_id
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "restaurant_id")
-    private Restaurant restaurant;
 }

@@ -7,11 +7,18 @@ import store.fooding.backend.common.response.status.BaseExceptionResponseStatus;
 import store.fooding.backend.dto.item.ItemRequest;
 import store.fooding.backend.dto.item.ItemResponse;
 import store.fooding.backend.dto.item.ItemUpdateRequest;
+import store.fooding.backend.model.Category;
 import store.fooding.backend.model.Item;
+import store.fooding.backend.model.Restaurant;
+import store.fooding.backend.model.User;
+import store.fooding.backend.repository.CategoryRepository;
 import store.fooding.backend.repository.ItemRepository;
+import store.fooding.backend.repository.RestaurantRepository;
 import store.fooding.backend.repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,58 +26,76 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final RestaurantRepository restaurantRepository;
+    private final CategoryRepository categoryRepository;
 
-    public List<Item> getAllItems() {
-        return itemRepository.findAll();
+    /**
+     * 전체 상품 조회
+     */
+    public List<ItemResponse> getAllItems() {
+        List<Item> items = itemRepository.findAll();
+
+        return items.stream().map(item -> {
+            String registeredBy = "";
+            if ("user".equals(item.getActorType())) {
+                Optional<User> user = userRepository.findById(item.getActorId());
+                registeredBy = user.map(User::getUserName).orElse("알 수 없음");
+            } else if ("restaurant".equals(item.getActorType())) {
+                Optional<Restaurant> restaurant = restaurantRepository.findById(item.getActorId());
+                registeredBy = restaurant.map(Restaurant::getRestaurantName).orElse("알 수 없음");
+            }
+
+            return ItemResponse.from(item, registeredBy);
+        }).collect(Collectors.toList());
     }
 
-    public Item createItem(Item item) {
-        return itemRepository.save(item);
+    /**
+     * 내 상품 조회
+     */
+    public List<ItemResponse> getMyItems(Long userId) {
+        List<Item> items = itemRepository.findByActorTypeAndActorId("user", userId);
+
+        return items.stream()
+                .map(item -> ItemResponse.from(item, null)) // 등록자는 내 정보라 불필요
+                .collect(Collectors.toList());
     }
+
+    /**
+     * 상품 등록
+     */
     public ItemResponse registerItem(Long userId, ItemRequest request) {
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new BadRequestException(BaseExceptionResponseStatus.BAD_REQUEST));
+
         Item item = new Item();
         item.setItemName(request.getItemName());
         item.setItemDescription(request.getItemDescription());
         item.setExpirationDate(request.getExpirationDate());
         item.setItemLocation(request.getItemLocation());
         item.setQuantity(request.getQuantity());
-        item.setItemStatus(request.getItemStatus()); // 상태 SHARING / EXCHANGE
-
-        userRepository.findById(userId).ifPresent(item::setUser);
+        item.setItemStatus(request.getItemStatus());
+        item.setActorType("user");
+        item.setActorId(userId);
+        item.setCategory(category);
+        item.setThumbnailUrl(request.getThumbnailUrl());
 
         Item saved = itemRepository.save(item);
 
-        return new ItemResponse(
-                saved.getItemId(),
-                saved.getItemName(),
-                saved.getItemDescription(),
-                saved.getExpirationDate(),
-                saved.getItemLocation(),
-                saved.getQuantity(),
-                saved.getItemStatus()
-        );
+        return ItemResponse.from(saved, null);
     }
 
-    public List<ItemResponse> getMyItems(Long userId) {
-        List<Item> items = itemRepository.findByUser_UserId(userId);
-        return items.stream()
-                .map(item -> new ItemResponse(
-                        item.getItemId(),
-                        item.getItemName(),
-                        item.getItemDescription(),
-                        item.getExpirationDate(),
-                        item.getItemLocation(),
-                        item.getQuantity(),
-                        item.getItemStatus()
-                )).toList();
-    }
-
+    /**
+     * 상품 삭제
+     */
     public void deleteItem(Long itemId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new BadRequestException(BaseExceptionResponseStatus.BAD_REQUEST));
         itemRepository.delete(item);
     }
 
+    /**
+     * 상품 수정
+     */
     public ItemResponse updateItem(Long itemId, ItemUpdateRequest request) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new BadRequestException(BaseExceptionResponseStatus.BAD_REQUEST));
@@ -80,18 +105,28 @@ public class ItemService {
         item.setExpirationDate(request.getExpirationDate());
         item.setItemLocation(request.getItemLocation());
         item.setQuantity(request.getQuantity());
+        item.setItemStatus(request.getItemStatus());
 
         Item updated = itemRepository.save(item);
 
-        return new ItemResponse(
-                updated.getItemId(),
-                updated.getItemName(),
-                updated.getItemDescription(),
-                updated.getExpirationDate(),
-                updated.getItemLocation(),
-                updated.getQuantity(),
-                updated.getItemStatus()
-        );
+        return ItemResponse.from(updated, null);
+    }
+
+    public List<ItemResponse> searchItems(String keyword) {
+        List<Item> items = itemRepository.searchItemsByKeyword(keyword);
+
+        return items.stream().map(item -> {
+            String registeredBy = "";
+            if ("user".equals(item.getActorType())) {
+                Optional<User> user = userRepository.findById(item.getActorId());
+                registeredBy = user.map(User::getUserName).orElse("알 수 없음");
+            } else if ("restaurant".equals(item.getActorType())) {
+                Optional<Restaurant> restaurant = restaurantRepository.findById(item.getActorId());
+                registeredBy = restaurant.map(Restaurant::getRestaurantName).orElse("알 수 없음");
+            }
+
+            return ItemResponse.from(item, registeredBy);
+        }).collect(Collectors.toList());
     }
 
 }

@@ -3,8 +3,10 @@ package store.fooding.backend.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import store.fooding.backend.common.exception.BadRequestException;
+import store.fooding.backend.common.response.status.BaseExceptionResponseStatus;
 import store.fooding.backend.dto.user.SignupRequest;
 import store.fooding.backend.dto.user.LoginRequest;
+import store.fooding.backend.dto.user.UserNameResponse;
 import store.fooding.backend.dto.user.UserResponse;
 import store.fooding.backend.model.User;
 import store.fooding.backend.repository.UserRepository;
@@ -46,4 +48,16 @@ public class UserService {
 
         return new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getLocation());
     }
+
+    public UserNameResponse getUserNameById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException(BaseExceptionResponseStatus.USER_NOT_FOUND));
+        return new UserNameResponse(user.getUserId(), user.getUserName());
+    }
+
+
+
+
+
+
 }
