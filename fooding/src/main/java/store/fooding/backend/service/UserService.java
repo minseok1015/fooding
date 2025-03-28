@@ -1,10 +1,8 @@
 package store.fooding.backend.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import store.fooding.backend.common.exception.BadRequestException;
-import store.fooding.backend.common.response.status.BaseExceptionResponseStatus;
 import store.fooding.backend.dto.user.SignupRequest;
 import store.fooding.backend.dto.user.LoginRequest;
 import store.fooding.backend.dto.user.UserResponse;
@@ -20,7 +18,6 @@ import static store.fooding.backend.common.response.status.BaseExceptionResponse
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     public UserResponse registerUser(SignupRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -30,7 +27,7 @@ public class UserService {
         User user = new User();
         user.setUserName(request.getUserName());
         user.setEmail(request.getEmail());
-        user.setUserPassword(passwordEncoder.encode(request.getUserPassword()));
+        user.setUserPassword(request.getUserPassword());
         user.setLocation(request.getLocation());
         user.setCreateAt(LocalDateTime.now());
 
@@ -43,7 +40,7 @@ public class UserService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadRequestException(EMAIL_NOT_FOUND));
 
-        if (!passwordEncoder.matches(request.getUserPassword(), user.getUserPassword())) {
+        if (!user.getUserPassword().equals(request.getUserPassword())) {
             throw new BadRequestException(PASSWORD_NO_MATCH);
         }
 
