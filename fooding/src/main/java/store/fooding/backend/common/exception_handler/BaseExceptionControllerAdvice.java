@@ -20,11 +20,12 @@ import static store.fooding.backend.common.response.status.BaseExceptionResponse
 public class BaseExceptionControllerAdvice {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({BadRequestException.class, NoHandlerFoundException.class, TypeMismatchException.class})
-    public BaseErrorResponse handle_BadRequest(Exception e) {
+    @ExceptionHandler(BadRequestException.class)
+    public BaseErrorResponse handle_BadRequest(BadRequestException e) {
         log.error("[handle_BadRequest]", e);
-        return new BaseErrorResponse(URL_NOT_FOUND);
+        return new BaseErrorResponse(e.getExceptionStatus());
     }
+
 
     // 위와 동일 (return ResponseEntity<>)
     /*

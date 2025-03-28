@@ -16,7 +16,13 @@ public class User {
     private Long userId;
 
     private String userName;
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
     private String userPassword;
+
+    private String location;
 
     @Column(name = "create_at")
     private LocalDateTime createAt;

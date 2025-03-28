@@ -1,23 +1,52 @@
 package store.fooding.backend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import store.fooding.backend.common.exception.BadRequestException;
+import store.fooding.backend.common.response.status.BaseExceptionResponseStatus;
+import store.fooding.backend.dto.user.SignupRequest;
+import store.fooding.backend.dto.user.LoginRequest;
+import store.fooding.backend.dto.user.UserResponse;
 import store.fooding.backend.model.User;
 import store.fooding.backend.repository.UserRepository;
 
-import java.util.List;
+import java.time.LocalDateTime;
+
+import static store.fooding.backend.common.response.status.BaseExceptionResponseStatus.*;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public UserResponse registerUser(SignupRequest request) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new BadRequestException(DUPLICATE_EMAIL);
+        }
+
+        User user = new User();
+        user.setUserName(request.getUserName());
+        user.setEmail(request.getEmail());
+        user.setUserPassword(passwordEncoder.encode(request.getUserPassword()));
+        user.setLocation(request.getLocation());
+        user.setCreateAt(LocalDateTime.now());
+
+        User saved = userRepository.save(user);
+
+        return new UserResponse(saved.getUserId(), saved.getUserName(), saved.getEmail(), saved.getLocation());
     }
 
-    public User createUser(User user) {
-        return userRepository.save(user);
+    public UserResponse login(LoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new BadRequestException(EMAIL_NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.getUserPassword(), user.getUserPassword())) {
+            throw new BadRequestException(PASSWORD_NO_MATCH);
+        }
+
+        return new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getLocation());
     }
 }

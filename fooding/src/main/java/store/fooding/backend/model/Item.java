@@ -20,7 +20,8 @@ public class Item {
     private LocalDate expirationDate;
     private String thumbnailUrl;
     private String itemLocation;
-    private String itemStatus;
+    private String itemStatus; // SHARING, EXCHANGE 상태 관리
+    private String quantity;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
