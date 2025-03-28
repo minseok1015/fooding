@@ -1,24 +1,23 @@
 package store.fooding.backend.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import store.fooding.backend.model.User;
 import store.fooding.backend.repository.UserRepository;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public User registerUser(String name, String rawPassword) {
-        String encodedPassword = passwordEncoder.encode(rawPassword);
-        User user = User.builder()
-                .name(name)
-                .password(encodedPassword)
-                .build();
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User createUser(User user) {
         return userRepository.save(user);
     }
 }
