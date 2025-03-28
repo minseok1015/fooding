@@ -24,6 +24,9 @@ public class User {
 
     private String location;
 
+    private String phoneNumber;
+
+
     @Column(name = "create_at")
     private LocalDateTime createAt;
 }

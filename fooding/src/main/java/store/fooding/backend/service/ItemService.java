@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static store.fooding.backend.common.response.status.BaseExceptionResponseStatus.USER_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class ItemService {
@@ -37,15 +39,17 @@ public class ItemService {
 
         return items.stream().map(item -> {
             String registeredBy = "";
+            String phoneNumber = "";
             if ("user".equals(item.getActorType())) {
                 Optional<User> user = userRepository.findById(item.getActorId());
                 registeredBy = user.map(User::getUserName).orElse("알 수 없음");
+                phoneNumber = user.map(User::getPhoneNumber).orElse("");
             } else if ("restaurant".equals(item.getActorType())) {
                 Optional<Restaurant> restaurant = restaurantRepository.findById(item.getActorId());
                 registeredBy = restaurant.map(Restaurant::getRestaurantName).orElse("알 수 없음");
             }
 
-            return ItemResponse.from(item, registeredBy);
+            return ItemResponse.from(item, registeredBy, phoneNumber);
         }).collect(Collectors.toList());
     }
 
@@ -53,10 +57,15 @@ public class ItemService {
      * 내 상품 조회
      */
     public List<ItemResponse> getMyItems(Long userId) {
+        // 내 상품만 조회
         List<Item> items = itemRepository.findByActorTypeAndActorId("user", userId);
 
+        // 등록자의 정보 (내 정보)
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException(USER_NOT_FOUND));
+
         return items.stream()
-                .map(item -> ItemResponse.from(item, null)) // 등록자는 내 정보라 불필요
+                .map(item -> ItemResponse.from(item, user.getUserName(), user.getPhoneNumber()))
                 .collect(Collectors.toList());
     }
 
@@ -81,7 +90,11 @@ public class ItemService {
 
         Item saved = itemRepository.save(item);
 
-        return ItemResponse.from(saved, null);
+        // 등록한 사람 정보 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException(USER_NOT_FOUND));
+
+        return ItemResponse.from(saved, user.getUserName(), user.getPhoneNumber());
     }
 
     /**
@@ -109,23 +122,39 @@ public class ItemService {
 
         Item updated = itemRepository.save(item);
 
-        return ItemResponse.from(updated, null);
+        String registeredBy = "";
+        String phoneNumber = "";
+        if ("user".equals(updated.getActorType())) {
+            Optional<User> user = userRepository.findById(updated.getActorId());
+            registeredBy = user.map(User::getUserName).orElse("알 수 없음");
+            phoneNumber = user.map(User::getPhoneNumber).orElse("");
+        } else if ("restaurant".equals(updated.getActorType())) {
+            Optional<Restaurant> restaurant = restaurantRepository.findById(updated.getActorId());
+            registeredBy = restaurant.map(Restaurant::getRestaurantName).orElse("알 수 없음");
+        }
+
+        return ItemResponse.from(updated, registeredBy, phoneNumber);
     }
 
+    /**
+     * 상품 검색
+     */
     public List<ItemResponse> searchItems(String keyword) {
         List<Item> items = itemRepository.searchItemsByKeyword(keyword);
 
         return items.stream().map(item -> {
             String registeredBy = "";
+            String phoneNumber = "";
             if ("user".equals(item.getActorType())) {
                 Optional<User> user = userRepository.findById(item.getActorId());
                 registeredBy = user.map(User::getUserName).orElse("알 수 없음");
+                phoneNumber = user.map(User::getPhoneNumber).orElse("");
             } else if ("restaurant".equals(item.getActorType())) {
                 Optional<Restaurant> restaurant = restaurantRepository.findById(item.getActorId());
                 registeredBy = restaurant.map(Restaurant::getRestaurantName).orElse("알 수 없음");
             }
 
-            return ItemResponse.from(item, registeredBy);
+            return ItemResponse.from(item, registeredBy, phoneNumber);
         }).collect(Collectors.toList());
     }
 

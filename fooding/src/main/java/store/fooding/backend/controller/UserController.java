@@ -2,10 +2,7 @@ package store.fooding.backend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import store.fooding.backend.dto.user.SignupRequest;
-import store.fooding.backend.dto.user.LoginRequest;
-import store.fooding.backend.dto.user.UserNameResponse;
-import store.fooding.backend.dto.user.UserResponse;
+import store.fooding.backend.dto.user.*;
 import store.fooding.backend.service.UserService;
 
 @RestController
@@ -28,6 +25,11 @@ public class UserController {
     @GetMapping("/{userId}/username")
     public UserNameResponse getUserNameById(@PathVariable Long userId) {
         return userService.getUserNameById(userId);
+    }
+
+    @GetMapping("/{userId}/mypage")
+    public MyPageResponse getMyPage(@PathVariable Long userId) {
+        return userService.getMyPageInfo(userId);
     }
 
 }

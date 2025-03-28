@@ -7,8 +7,7 @@ import store.fooding.backend.model.Item;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
+@Getter @Setter
 @AllArgsConstructor
 public class ItemResponse {
     private Long itemId;
@@ -18,9 +17,11 @@ public class ItemResponse {
     private String itemLocation;
     private Integer quantity;
     private String itemStatus;
-    private String registeredBy; // optional
+    private String categoryName;
+    private String registeredBy;
+    private String phoneNumber;
 
-    public static ItemResponse from(Item item, String registeredBy) {
+    public static ItemResponse from(Item item, String registeredBy, String phoneNumber) {
         return new ItemResponse(
                 item.getItemId(),
                 item.getItemName(),
@@ -29,7 +30,9 @@ public class ItemResponse {
                 item.getItemLocation(),
                 item.getQuantity(),
                 item.getItemStatus(),
-                registeredBy
+                item.getCategory() != null ? item.getCategory().getCategoryName() : null,
+                registeredBy,
+                phoneNumber
         );
     }
 }
