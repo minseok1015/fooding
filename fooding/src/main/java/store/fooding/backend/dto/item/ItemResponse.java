@@ -21,6 +21,7 @@ public class ItemResponse {
     private String registeredBy;
     private String phoneNumber;
     private Long userId;
+    private String thumbnailUrl; // ✅ 추가
 
     public static ItemResponse from(Item item, String registeredBy, String phoneNumber) {
         Long userId = null;
@@ -39,9 +40,8 @@ public class ItemResponse {
                 item.getCategory() != null ? item.getCategory().getCategoryName() : null,
                 registeredBy,
                 phoneNumber,
-                userId
+                userId,
+                item.getThumbnailUrl()
         );
     }
-
 }
-
