@@ -22,10 +22,7 @@ public class Item {
     private String itemStatus;
     private String quantity;
 
-
-    @Lob
-    @Column(name = "thumbnail_image")
-    private byte[] thumbnailImage; // 썸네일 byte[] 저장
+    private String thumbnailUrl; // 🔥 S3 URL 저장
 
     private String actorType; // "user" or "restaurant"
     private Long actorId;     // user_id or restaurant_id

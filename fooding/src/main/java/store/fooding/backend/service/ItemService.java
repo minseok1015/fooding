@@ -33,6 +33,7 @@ public class ItemService {
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
     private final CategoryRepository categoryRepository;
+    private final AwsFileService awsFileService;
 
     /**
      * 전체 상품 조회
@@ -90,18 +91,17 @@ public class ItemService {
         item.setActorId(userId);
         item.setCategory(category);
 
+        // 썸네일 S3 업로드 후 URL 저장
         if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
-            try {
-                item.setThumbnailImage(thumbnailImage.getBytes());
-            } catch (IOException e) {
-                throw new BadRequestException(BaseExceptionResponseStatus.BAD_REQUEST);
-            }
+            String imageUrl = awsFileService.upload(thumbnailImage);
+            item.setThumbnailUrl(imageUrl);
         }
 
         Item saved = itemRepository.save(item);
 
         return ItemResponse.from(saved, null, null);
     }
+
 
 
     /**
