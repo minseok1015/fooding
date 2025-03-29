@@ -20,8 +20,14 @@ public class ItemResponse {
     private String categoryName;
     private String registeredBy;
     private String phoneNumber;
+    private Long userId;
 
     public static ItemResponse from(Item item, String registeredBy, String phoneNumber) {
+        Long userId = null;
+        if ("user".equals(item.getActorType())) {
+            userId = item.getActorId();
+        }
+
         return new ItemResponse(
                 item.getItemId(),
                 item.getItemName(),
@@ -32,8 +38,10 @@ public class ItemResponse {
                 item.getItemStatus(),
                 item.getCategory() != null ? item.getCategory().getCategoryName() : null,
                 registeredBy,
-                phoneNumber
+                phoneNumber,
+                userId
         );
     }
+
 }
 
